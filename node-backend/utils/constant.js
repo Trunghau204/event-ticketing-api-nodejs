@@ -1,0 +1,18 @@
+module.exports = {
+  ROLES: {
+    USER: 'USER',
+    ADMIN: 'ADMIN',
+  },
+  ORDER_STATUS: {
+    PENDING: 'PENDING',
+    PAID: 'PAID',
+    CANCELLED: 'CANCELLED',
+    COMPLETED: 'COMPLETED',
+  },
+  EVENT_STATUS: {
+    UPCOMING: 'UPCOMING',
+    ONGOING: 'ONGOING',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED',
+  },
+};
