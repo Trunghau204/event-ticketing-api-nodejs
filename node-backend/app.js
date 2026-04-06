@@ -33,6 +33,12 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/checkin', require('./routes/checkin'));
 app.use('/api/stripe', require('./routes/stripe'));
+app.use('/api/categories', require('./routes/categories'));
+app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/wishlists', require('./routes/wishlists'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/promotions', require('./routes/promotions'));
+app.use('/api/cart', require('./routes/cart'));
 
 // Error handler
 app.use((err, req, res, next) => {

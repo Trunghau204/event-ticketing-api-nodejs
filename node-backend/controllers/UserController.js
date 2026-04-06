@@ -1,44 +1,30 @@
-const { User } = require("../schemas");
-const bcrypt = require("bcryptjs");
+const { User } = require('../schemas');
+const bcrypt = require('bcryptjs');
+const AppError = require('../utils/AppError');
 
-exports.getProfile = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ["password"] },
-    });
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+exports.getProfile = async (userId) => {
+  const user = await User.findByPk(userId, {
+    attributes: { exclude: ['password'] },
+  });
+  if (!user) throw new AppError('User not found', 404);
+  return user;
 };
 
-exports.updateProfile = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+exports.updateProfile = async (userId, { fullName, phone }) => {
+  const user = await User.findByPk(userId);
+  if (!user) throw new AppError('User not found', 404);
 
-    const { fullName, phone } = req.body;
-    await user.update({ fullName, phone });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  await user.update({ fullName, phone });
+  return user;
 };
 
-exports.changePassword = async (req, res) => {
-  try {
-    const { oldPassword, newPassword } = req.body;
-    const user = await User.findByPk(req.user.id);
+exports.changePassword = async (userId, { oldPassword, newPassword }) => {
+  const user = await User.findByPk(userId);
+  
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) throw new AppError('Current password incorrect', 400);
 
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Current password incorrect" });
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await user.update({ password: hashedPassword });
-    res.json({ message: "Password updated successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await user.update({ password: hashedPassword });
+  return { message: 'Password updated successfully' };
 };

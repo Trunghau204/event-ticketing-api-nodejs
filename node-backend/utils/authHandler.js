@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+// In-memory token blacklist (lưu các token đã logout)
+const tokenBlacklist = new Set();
+
 const signToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
 };
@@ -23,6 +26,11 @@ const protect = (req, res, next) => {
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
 
+  // Kiểm tra token đã bị logout chưa
+  if (tokenBlacklist.has(token)) {
+    return res.status(401).json({ message: 'Token has been invalidated (logged out)' });
+  }
+
   const decoded = verifyToken(token);
   if (!decoded) {
     return res.status(401).json({ message: 'Not authorized, token failed' });
@@ -41,4 +49,8 @@ const restrictTo = (...roles) => {
   };
 };
 
-module.exports = { signToken, verifyToken, protect, restrictTo };
+const blacklistToken = (token) => {
+  tokenBlacklist.add(token);
+};
+
+module.exports = { signToken, verifyToken, protect, restrictTo, blacklistToken };
